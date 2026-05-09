@@ -39,7 +39,6 @@ type StudentsPayload = {
 }
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8888/api'
-console.log(API_BASE_URL)
 const TOKEN_KEY = 'session_id'
 
 class ApiError extends Error {

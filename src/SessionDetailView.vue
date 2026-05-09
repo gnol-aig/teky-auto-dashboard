@@ -5,6 +5,7 @@ import CheckinButton from '@/components/CheckinButton.vue'
 import EvaluationForm from '@/components/EvaluationForm.vue'
 import StudentAttendanceRow from '@/components/StudentAttendanceRow.vue'
 import { useApi } from '@/composables/useApi'
+import { useCheckinRules } from '@/composables/useCheckinRules'
 import { useSessionDate } from '@/composables/useSessionDate'
 import type { AttendanceStatus, Checkin, Session, Student } from '@/types'
 
@@ -12,6 +13,7 @@ const route = useRoute()
 const router = useRouter()
 const api = useApi()
 const { formatSessionDateTime } = useSessionDate()
+const { canCheckinNow } = useCheckinRules()
 
 const session = ref<Session | null>(null)
 const checkin = ref<Checkin | null>(null)
@@ -55,6 +57,10 @@ const canUpdateTotalStudents = computed(() => {
   )
 })
 
+const canCheckin = computed(() => {
+  return canCheckinNow(checkin.value, session.value?.datetime ?? null) && !checkinLoading.value
+})
+
 const isAttendanceLoading = (studentId: number) => attendanceLoadingIds.value.has(studentId)
 
 const setAttendanceLoading = (studentId: number, value: boolean) => {
@@ -92,7 +98,7 @@ const loadSessionDetail = async () => {
 }
 
 const handleCheckin = async () => {
-  if (checkin.value?.state !== 'AVAILABLE' || checkinLoading.value) return
+  if (!canCheckin.value) return
 
   checkinLoading.value = true
   errorMessage.value = ''
@@ -204,7 +210,12 @@ onMounted(loadSessionDetail)
               </h1>
             </div>
 
-            <CheckinButton :checkin="checkin" :loading="checkinLoading" @checkin="handleCheckin" />
+            <CheckinButton
+              :checkin="checkin"
+              :session-datetime="session.datetime"
+              :loading="checkinLoading"
+              @checkin="handleCheckin"
+            />
           </div>
 
           <dl class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

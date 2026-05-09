@@ -20,7 +20,7 @@ export type Session = {
   datetime: SessionDateTime
 }
 
-export type CheckinState = 'MISSED' | 'NO_INFO' | 'INTIME' | 'LATE' | 'AVAILABLE'
+export type CheckinState = 'MISSED' | 'NO_INFO' | 'INTIME' | 'LATE'
 
 export type Checkin = {
   checkin_id: number
