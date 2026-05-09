@@ -75,6 +75,17 @@ const setAttendanceLoading = (studentId: number, value: boolean) => {
   attendanceLoadingIds.value = next
 }
 
+const normalizeStudentsResult = (result: Array<Student | { list_students?: Student[] }>) => {
+  return result.flatMap((item) => {
+    if (item && typeof item === 'object' && 'student_id' in item) {
+      return [item as Student]
+    }
+
+    const listStudents = (item as { list_students?: Student[] }).list_students
+    return Array.isArray(listStudents) ? listStudents : []
+  })
+}
+
 const loadSessionDetail = async () => {
   loading.value = true
   errorMessage.value = ''
@@ -89,7 +100,8 @@ const loadSessionDetail = async () => {
     session.value = sessionResult
     totalStudentsInput.value = sessionResult?.total_students ?? 0
     checkin.value = checkinResult
-    students.value = studentsResult
+    students.value = normalizeStudentsResult(studentsResult) 
+    
   } catch (error) {
     errorMessage.value = error instanceof Error ? error.message : 'Could not load session details.'
   } finally {
